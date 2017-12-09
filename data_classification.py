@@ -5,20 +5,21 @@ import data_modification as dm
 import pywt
 import pandas as pd
 import matplotlib.pyplot as plt
-trls = 168
+trls = 224
 duration = 300
 reduction = 0
 sub_sets = 1
-dc = dm.ex_d('data_set_IVa_aa_cnt.txt','data_set_IVa_aa_mrk.txt',trls,duration,reduction,sub_sets)
+dc = dm.ex_d('data_set_IVa_aa_cnt.txt','data_set_IVa_aa_mrk.txt',trls,duration,reduction)
 dpz =[]
-dpz.append(dc.MEAN())
-dpz.append(dc.MEDIAN())
-dpz.append(dc.VARIANCE())
-dpz.append(dc.coeff_var())
+dc2 = dc.i_data(1)
+dpz.append(dc.MEAN(dc2))
+dpz.append(dc.MEDIAN(dc2))
+#dpz.append(dc.VARIANCE())
+#dpz.append(dc.coeff_var())
 dpz.append(dc.wave_let())
 #p = pd.DataFrame({'test':dc[0][0].tolist()})
 targets = dc.labels
-for g in range(10):
+'''for g in range(10):
 	x = np.array(range(118))
 	y = np.zeros((118))
 	j=0
@@ -28,7 +29,7 @@ for g in range(10):
 	plt.plot(x, y)
 	plt.title(targets[g])
 	plt.show()
-
+'''
 max = 0
 
 for dp in dpz:
@@ -38,11 +39,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if((labels[i] == targets[i]) or (labels[i] + 2 == targets[i])):
+			if(labels[i] == targets[i]):
 				count+=1
 
 	print('MiniBatchKMeans : ',end='')
@@ -58,11 +59,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 
 	print('KMeans : ',end='')
@@ -77,11 +78,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 
 	print('SpectralClustering : ',end='')
@@ -96,11 +97,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('MeanShift : ',end='')
 	acuracy = count*100/trls
@@ -114,11 +115,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('AffinityPropagation : ',end='')
 	acuracy = count*100/trls
@@ -133,11 +134,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('AgglomerativeClustering : ',end='')
 	acuracy = count*100/trls
@@ -152,11 +153,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('DBSCAN : ',end='')
 	acuracy = count*100/trls
@@ -170,11 +171,11 @@ for dp in dpz:
 	labels = mkm.labels_
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('Birch : ',end='')
 	acuracy = count*100/trls
@@ -189,11 +190,11 @@ for dp in dpz:
 	labels = mkm.predict(dp)
 	count = 0
 	for i in range(trls):
-		if(labels[0]==0 and labels[1]==0):
-			if(labels[i]+1 == targets[i]):
+		if(labels[0]==0):
+			if(labels[i] == 1-targets[i]):
 				count+=1
 		else:
-			if(labels[i] == targets[i] or labels[i] + 2 == targets[i]):
+			if(labels[i] == targets[i]):
 				count+=1
 	print('GaussianMixture : ',end='')
 	acuracy = count*100/trls

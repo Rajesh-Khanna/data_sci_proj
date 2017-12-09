@@ -3,7 +3,7 @@ import pywt
 import matplotlib.pyplot as plt
 
 class ex_d:
-	def __init__(self,data_file,time_file,l,data_repetation,reduction,sub_sets):
+	def __init__(self,data_file,time_file,l,data_repetation,reduction):
 		self.data_file = data_file
 		self.time_file = time_file
 		self.l = l
@@ -20,7 +20,11 @@ class ex_d:
 		labels = []
 		for i in range(l):
 			time.append(int(ti[i].split('\t')[0]))
-			labels.append(int(ti[i].split('\t')[1]))
+			a = int(ti[i].split('\t')[1])
+			if(a == 2):
+				labels.append(0)
+			else:
+				labels.append(1)
 		self.labels = labels
 		for j in range(len(time)):
 			dp.append([])
@@ -36,38 +40,60 @@ class ex_d:
 			for j in range(len(i)):
 				i[j] = np.array(i[j])
 		'''
-		for g in range(10):
+		for g in range(118):
 			x = np.array(range(300))
 			y = np.zeros((300))
 			j=0
-			for i in dp2[g]:
-				y[j]+=(i[4])
+			for i in dp2[8]:
+				y[j]+=(i[g])
 				j+=1
 			plt.plot(x, y)
-			plt.title(labels[g])
+			#plt.title(labels[g])
 			plt.show()
 		'''
 
-	def MEAN(self):
+	def i_data(self,z):
+		d = self.d2
+		l = self.l
 		dr = self.dr
-		dp2 = self.d2
+		self.z = z
+		q = 0
+		dp = np.zeros((l*z,dr//z,118))
+		for i in range(l):
+			for q in range(z):
+				for j in range(dr//z):
+					dp[q][j] += d[i][j + q*dr//z]
+				q+=1
+		return(dp)
+
+	def MEAN(self,dp2):
+		dr = self.dr
 		l = self.l
 		r = self.r
-		data_point = np.zeros((l,118))
+		z = self.z
+		data_point = np.zeros((l*z,118))
 		for i in range(len(dp2)):
-			for j in range(dr-r):		
-				data_point[i] += abs(dp2[i][j])
-			data_point[i] = data_point[i]/(dr-r)
+			for j in range(dr//z):
+				'''
+				if(j<dr//z):
+					data_point[i] += (dp2[i][j])
+				else:
+					data_point[i] -= (dp2[i][j])
+				'''	
+				data_point[i] += (dp2[i][j])
+			data_point[i] = data_point[i]/(dr//z)
 		return data_point
+
 	def Labels(self):
 		return self.labels
-	def MEDIAN(self):
+	def MEDIAN(self,dp2):
 		dr = self.dr
-		dp2 = self.d2
+		#dp2 = self.d2
 		l = self.l
-		data_point = np.zeros((l,118))
+		z = self.z 
+		data_point = np.zeros((l*z,118))
 		for i in range(len(dp2)):		
-			data_point[i] += dp2[i][dr//2]
+			data_point[i] += dp2[i][dr//(2*z)]
 		return data_point
 
 	def VARIANCE(self):
@@ -76,14 +102,15 @@ class ex_d:
 		l = self.l
 		r = self.r
 		data_point = np.zeros((l,118))
-		mean_points=self.MEAN()
+		mean_points=self.MEAN(dp2)
 		for i in range(len(dp2)):
 			for j in range(dr-r):		
 				data_point[i] += abs(dp2[i][j]-mean_points[i])
 			data_point[i] = data_point[i]/(dr-r)
 		return data_point
 	def coeff_var(self):
-		return (self.VARIANCE()/self.MEAN())
+		dp2 = self.d2
+		return (self.VARIANCE()/self.MEAN(dp2))
 
 	def wavelet_features(self,z):
 		d = self.d2
