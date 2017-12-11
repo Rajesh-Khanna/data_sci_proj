@@ -12,13 +12,21 @@ dc = dm.ex_d('data_set_IVa_aa_cnt.txt','data_set_IVa_aa_mrk.txt',trls,duration,r
 dpz =[]
 #rd = dc.red_data()
 a = dc.BF()
+x=np.arange(300)
+y=[a[8,i,0] for i in np.arange(300)]
+z=[a[9,i,0] for i in np.arange(300)]
+plt.figure()
+plt.plot(x,y,label="0")
+plt.plot(x,z,label="1")
+plt.show()
+
 dc2 = dc.i_data(1)
 dpz.append(dc.MEAN(a))
 dpz.append(dc.MEDIAN(a))
 #dpz.append(dc.VARIANCE())
 #dpz.append(dc.coeff_var())
 dpz.append(dc.wave_let(a))
-dpz.append(dc.skew_let())
+dpz.append(dc.skew_let(a))
 targets = dc.Labels()
 
 max = 0
@@ -89,7 +97,7 @@ for dp in dpz:
 		max = acuracy
 	print(acuracy,end='')
 	print('%\n')
-	
+
 	mkm = MeanShift()
 	mkm.fit(dp)
 	labels = mkm.labels_

@@ -112,7 +112,6 @@ class ex_d:
 		return (self.VARIANCE()/self.MEAN(dp2))
 
 	def wavelet_features(self,z,dp):
-		#d = self.d2
 		dr = self.dr
 		'''for i in range(len(d)):
 			for j in d[i]:
@@ -120,7 +119,6 @@ class ex_d:
 			d[i]=np.array(d[i])
 		'''
 		#dp = np.array(d)
-		
 		r = self.r
 		l = self.l		
 		epoch = np.zeros((30,dr))
@@ -177,37 +175,36 @@ class ex_d:
 		for i in range(1,len(d)):
 			dp = np.vstack([dp, self.wavelet_features(i,d)])
 		return dp
-
-	def skew(self,z):
-		d = self.d2
-		dr = self.dr
-		r = self.r
-		l = self.l
-		for i in range(len(d)):
-			for j in d[i]:
-				j = np.array(j)
-			d[i]=np.array(d[i])
-		dp = np.array(d)
-		data = np.zeros((30,dr))
-		for i in range(30):
-			for j in range(dr):
-				data[i][j] = 1*dp[z][j][i]
+	def skewness(self,data):
 		skew_array = np.zeros((len(data))) #Initialinling the array as all 0s
-		index = 0; #current cell position in the output array
-		for i in data:
-			x=sp.stats.skew(i,axis=0,bias=True)
-			skew_array[index]=x
-			index+=1 #updating the cell position
-		return np.sum(skew_array)/index
+		x=sp.stats.skew(data,axis=0,bias=True)
+		return x
 
-	def skew_let(self):
-		d = self.d2
+	def skew(self,d):
+		#d = self.ed[z]
 		dr = self.dr
 		r = self.r
 		l = self.l
-		dp = np.array([self.skew(0)])
+		y = [self.skewness(d[0]),]
 		for i in range(1,len(d)):
-			dp = np.vstack([dp, self.skew(i)])
+			y.append(self.skewness(d[i]))
+		y = np.array(y)
+		return y
+
+	def skew_let(self,y):
+		#d = self.d2
+		dr = self.dr
+		r = self.r
+		l = self.l
+		d = np.zeros((168,30,300))
+		for i in range(168):
+			for j in range(300):
+				for k in range(30):
+					d[i,k,j] = 1*y[i,j,k]
+		dp = [self.skew(d[0]),]
+		for i in range(1,len(d)):
+			dp.append(self.skew(d[i]))
+		dp = np.array(dp)	
 		return dp
 
 	def butter_bandpass(self ,lowcut, highcut, fs, order=3):
@@ -217,30 +214,27 @@ class ex_d:
 		b, a = butter(order, [low, high], btype='band')
 		return b, a
 
-
-	def butter_bandpass_filter(self,z, lowcut, highcut, fs, order=3):
+	def butter_bandpass_filter(self,z, lowcut, highcut, fs,a,b, order=3):
 		data = self.ed[z]
-		b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-		y = np.array([filtfilt(b, a, data[0])])
+		y = [filtfilt(b, a, data[0]),]
 		for i in range(1,len(data)):	
-			b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-			y=np.vstack([y,filtfilt(b, a, data[i])])
-		#print(len(y[0]))
+			y.append(filtfilt(b, a, data[i]))
+		y = np.array(y)
 		return y
 
 	def BF(self):
-
 		fs = 300/3
 		lowcut = 7.0
 		highcut = 30.0
-		#t = range(len(eeg))
 		l = self.l
-		y = np.array(self.butter_bandpass_filter(0, lowcut, highcut, fs, order=3))
+		b, a = self.butter_bandpass(lowcut, highcut, fs, order=3)
+		y =	[self.butter_bandpass_filter(0,lowcut,highcut, fs,a,b, order=3),]
 		for i in range(1,l):
-			y=np.vstack([y,self.butter_bandpass_filter(i, lowcut, highcut, fs, order=3)])
+			y.append(self.butter_bandpass_filter(i, lowcut, highcut, fs,a,b, order=3))
+		y = np.array(y)
 		dp = np.zeros((168,300,30))
 		for i in range(168):
 			for j in range(300):
 				for k in range(30):
-					dp[i][j][k] = 1*y[30*(i//30) + k][j]
+					dp[i,j,k] = 1*y[i,k,j]
 		return dp
